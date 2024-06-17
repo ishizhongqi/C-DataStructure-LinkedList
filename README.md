@@ -1,2 +1,2 @@
-# LinkedList of Void Pointer In C (C语言无类型指针链表)
+# Generic LinkedList In C (C语言通用类型链表)
 施工中...
