@@ -1,4 +1,3 @@
 # Usually you do not need to commit 
 # the generating object files and test files.
 build/
-test/
