@@ -1,62 +1,41 @@
-##########################################################
-#
-##########################################################
+# 设定编译器
+CC = gcc
 
-# The directories in which your files reside.
-SRCDIR = ./src
-OBJDIR = ./build
-INCDIR = ./include
-LIBDIR = ./lib
-BINDIR = ./bin
+# 设定源文件目录
+SRCDIR = src
+# 设定源文件目录
+INCDIR = include
+# 设定对象文件目录
+OBJDIR = build
+# 设定库文件目录
+LIBDIR = lib
 
-# The executable file name. Must be specified.
-PROGRAM := 
+# 设定源文件列表（假设所有.c文件都需要编译）
+SRCS = $(wildcard $(SRCDIR)/*.c)
 
-# The path of the executable file.
-TARGET  := $(BINDIR)/$(PROGRAM)
+# 设定对象文件列表（从源文件列表生成）
+OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
-# C program compilers.
-CC      := gcc
+# 设定库文件名
+LIB = $(LIBDIR)/liblinkedlist.a
 
-# The options used in linking as well as in any direct use of ld.
-LDFLAGS := -L$(LIBDIR)
+# 默认目标
+all: $(LIB)
 
-# The libary options, e.g. "-lmysqlclient".
-LIBS    := 
+# 编译规则，从.c文件生成.o文件
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	$(CC) -c $< -o $@ -I$(INCDIR) -g -Wall
 
-# Specify the macro definition that needs to be compiled, e.g. "-DDEBUG".
-DEFINES := 
+# 创建库文件的规则
+$(LIB): $(OBJS)
+	ar rcs $@ $(OBJS)
 
-# Find the source files in source dirs.
-SOURCES  := $(wildcard $(SRCDIR)/*.c)
+# 清理编译生成的文件
+clean:
+	rm -f $(OBJDIR)/*.o $(LIB)
 
-# Specify the include dirs, e.g. "-I/usr/include/mysql -I./include -I/usr/include -I/usr/local/include".
-INCLUDES := -I$(INCDIR)
+# 确保对象文件目录存在
+$(shell mkdir -p $(OBJDIR) $(LIBDIR) || true)
 
-# The generating object files (.o).
-OBJS    := $(patsubst %.c,$(OBJ)/%.o,$(notdir $(SOURCES)))
-
-# The compiler options.
-CFLAGS  := -g -Wall
-
-# The phony targets.
-.PHONY : all clean
-
-# The command used to compile when one directory contains multiple programs.
-all : $(TARGET)
-
-# The command used to delete file.
-RM = rm -f
-
-clean :
-	$(RM) $(OBJS) $(TARGET)
-
-# Rules for generating the executable.
-$(TARGET) : $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS) $(LIBS)
-
-# Rules for generating object files (.o).
-objs : $(OBJS)
-
-%.o: %.c
-	$(CC) $(INCLUDES) $(DEFINES) -c $(CFLAGS) $< -o $@
+# 依赖关系，确保在编译之前对象文件目录存在
+$(OBJS): | $(OBJDIR)
